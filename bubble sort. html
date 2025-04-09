@@ -1,1 +1,141 @@
-bubble sort
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bubble Sort Visualizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .bar {
+      display: inline-block;
+      width: 30px;
+      margin: 2px;
+      background-color: #2196F3;
+      color: white;
+      text-align: center;
+      line-height: 30px;
+      transition: 0.3s;
+      border-radius: 5px;
+    }
+
+    .compare {
+      background-color: #8BC34A; /* Green */
+    }
+
+    .swap {
+      background-color: #f44336; /* Red */
+    }
+
+    .legend {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      max-width: 400px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 3px;
+    }
+
+    .blue { background-color: #2196F3; }
+    .green { background-color: #8BC34A; }
+    .red { background-color: #f44336; }
+  </style>
+</head>
+<body>
+
+<h2>Bubble Sort Visualizer</h2>
+
+<label>Enter array (comma separated):</label>
+<input type="text" id="userInput" placeholder="e.g., 44,84,89,94,60">
+<button onclick="initializeArray()">Start</button>
+
+<div id="array" style="margin-top: 20px;"></div>
+<p id="observation"></p>
+
+<div class="legend">
+  <strong>Color Legend:</strong>
+  <div class="legend-item"><div class="color-box blue"></div> Unsorted Elements</div>
+  <div class="legend-item"><div class="color-box green"></div> Elements Being Compared</div>
+  <div class="legend-item"><div class="color-box red"></div> Elements Being Swapped</div>
+</div>
+
+<script>
+  let array = [];
+  let i = 0, j = 0;
+  let comparisons = 0, swaps = 0;
+  let interval;
+
+  function initializeArray() {
+    const input = document.getElementById('userInput').value;
+    array = input.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+    i = 0;
+    j = 0;
+    comparisons = 0;
+    swaps = 0;
+    document.getElementById('observation').innerText = '';
+    drawArray();
+    if (interval) clearInterval(interval);
+    interval = setInterval(bubbleSortStep, 500);
+  }
+
+  function drawArray(highlight1 = -1, highlight2 = -1, swap = false) {
+    const container = document.getElementById('array');
+    container.innerHTML = '';
+    array.forEach((val, idx) => {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      if (idx === highlight1 || idx === highlight2) {
+        bar.classList.add(swap ? 'swap' : 'compare');
+      }
+      bar.innerText = val;
+      container.appendChild(bar);
+    });
+  }
+
+  function bubbleSortStep() {
+    if (i < array.length - 1) {
+      if (j < array.length - i - 1) {
+        comparisons++;
+        let swapped = false;
+
+        if (array[j] > array[j + 1]) {
+          drawArray(j, j + 1, true);
+          [array[j], array[j + 1]] = [array[j + 1], array[j]];
+          swaps++;
+          swapped = true;
+          document.getElementById('observation').innerText =
+            `Pass: ${i + 1}\nComparisons: ${comparisons} | Swaps: ${swaps}\nComparing ${array[j + 1]} and ${array[j]}...\nSwapped`;
+        } else {
+          drawArray(j, j + 1, false);
+          document.getElementById('observation').innerText =
+            `Pass: ${i + 1}\nComparisons: ${comparisons} | Swaps: ${swaps}\nComparing ${array[j]} and ${array[j + 1]}...\nSwap not required`;
+        }
+        j++;
+      } else {
+        j = 0;
+        i++;
+      }
+    } else {
+      clearInterval(interval);
+      drawArray();
+      document.getElementById('observation').innerText =
+        `Sorting Complete!\nTotal Passes: ${i}\nTotal Comparisons: ${comparisons} | Total Swaps: ${swaps}`;
+    }
+  }
+</script>
+
+</body>
+</html>
