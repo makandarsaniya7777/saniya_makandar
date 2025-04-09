@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Selection Sort Visualizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+
+    .bar {
+      display: inline-block;
+      width: 30px;
+      margin: 2px;
+      background-color: #2196F3;
+      color: white;
+      text-align: center;
+      line-height: 30px;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+
+    .iterating {
+      background-color: #8BC34A;
+    }
+
+    .min {
+      background-color: #FFC107;
+    }
+
+    .sorted {
+      background-color: #000000;
+    }
+
+    #arrayContainer {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    #info {
+      margin-top: 15px;
+      font-family: monospace;
+      white-space: pre-line;
+      background-color: #eeeeee;
+      padding: 10px;
+      border-left: 4px solid #2196F3;
+      max-width: 600px;
+    }
+
+    #legend {
+      margin-top: 20px;
+      max-width: 600px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+    }
+
+    .color-label {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .blue { background-color: #2196F3; }
+    .green { background-color: #8BC34A; }
+    .yellow { background-color: #FFC107; }
+    .black { background-color: #000000; }
+  </style>
+</head>
+<body>
+
+<h2>Selection Sort Visualizer</h2>
+
+<label>Enter numbers (comma separated):</label>
+<input type="text" id="userInput" placeholder="Example: 45,12,7,89,23">
+<button onclick="startSorting()">Start Sorting</button>
+
+<div id="legend">
+  <strong>Color Legend:</strong>
+  <div class="color-label"><span class="color-box blue"></span>Unsorted elements</div>
+  <div class="color-label"><span class="color-box green"></span>Currently comparing</div>
+  <div class="color-label"><span class="color-box yellow"></span>Current minimum</div>
+  <div class="color-label"><span class="color-box black"></span>Sorted elements</div>
+</div>
+
+<div id="arrayContainer"></div>
+<div id="info"></div>
+
+<script>
+  let array = [];
+  let i = 0, j = 1, minIdx = 0;
+  let comparisons = 0, swaps = 0;
+  let interval;
+
+  function startSorting() {
+    const input = document.getElementById("userInput").value;
+    array = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+
+    if (array.length < 2) {
+      alert("Please enter at least two valid numbers.");
+      return;
+    }
+
+    i = 0;
+    j = 1;
+    minIdx = 0;
+    comparisons = 0;
+    swaps = 0;
+    clearInterval(interval);
+    drawArray();
+    interval = setInterval(selectionSortStep, 700);
+  }
+
+  function drawArray(iter = -1, min = -1) {
+    const container = document.getElementById("arrayContainer");
+    container.innerHTML = "";
+
+    array.forEach((value, idx) => {
+      const bar = document.createElement("div");
+      bar.classList.add("bar");
+      bar.textContent = value;
+
+      if (idx < i) {
+        bar.classList.add("sorted");
+      } else if (idx === iter) {
+        bar.classList.add("iterating");
+      } else if (idx === min) {
+        bar.classList.add("min");
+      }
+
+      container.appendChild(bar);
+    });
+  }
+
+  function selectionSortStep() {
+    if (i >= array.length - 1) {
+      clearInterval(interval);
+      drawArray();
+      document.getElementById("info").innerText =
+        `Sorting Complete!\nTotal Comparisons: ${comparisons}\nTotal Swaps: ${swaps}`;
+      return;
+    }
+
+    if (j < array.length) {
+      comparisons++;
+      drawArray(j, minIdx);
+
+      const infoText = `Pass: ${i + 1}
+Comparing: ${array[j]} with ${array[minIdx]}
+${array[j] < array[minIdx] ? "→ New minimum found!" : "→ No change in minimum."}
+Comparisons: ${comparisons}, Swaps: ${swaps}`;
+
+      document.getElementById("info").innerText = infoText;
+
+      if (array[j] < array[minIdx]) {
+        minIdx = j;
+      }
+      j++;
+    } else {
+      if (minIdx !== i) {
+        [array[i], array[minIdx]] = [array[minIdx], array[i]];
+        swaps++;
+      }
+      i++;
+      j = i + 1;
+      minIdx = i;
+      drawArray();
+    }
+  }
+</script>
+
+</body>
+</html>
